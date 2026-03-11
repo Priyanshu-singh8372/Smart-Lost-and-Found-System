@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart L&F - Official Site</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-theme="dark">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <i class="fa-solid fa-location-dot"></i> Smart L&F
+      </div>
+      <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <button
+          id="themeToggle"
+          class="btn-theme"
+          onclick="toggleTheme()"
+          title="Toggle Dark Mode"
+        >
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="#login"
+          ><button
+            class="btn-primary"
+            style="width: auto; padding: 0.5rem 1.5rem"
+          >
+            Login
+          </button></a
+        >
+      </div>
+    </nav>
+
+    <section id="home" class="hero-section">
+      <h1>Never Lose Your Valuables Again.</h1>
+      <p>
+        A smart, centralized, and AI-powered platform to seamlessly report,
+        match, and recover lost belongings.
+      </p>
+      <a href="#login" style="text-decoration: none"
+        ><button
+          class="btn-primary"
+          style="
+            width: auto;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+          "
+        >
+          Get Started for Free <i class="fa-solid fa-arrow-right"></i></button
+      ></a>
+    </section>
+
+    <section class="stats-section">
+      <div class="stat-box">
+        <i class="fa-solid fa-box-open"></i>
+        <h2 class="counter" data-target="542">0</h2>
+        <p>Items Reported</p>
+      </div>
+      <div class="stat-box">
+        <i class="fa-solid fa-handshake-angle"></i>
+        <h2 class="counter" data-target="385">0</h2>
+        <p>Successful Recoveries</p>
+      </div>
+      <div class="stat-box">
+        <i class="fa-solid fa-users"></i>
+        <h2 class="counter" data-target="1250">0</h2>
+        <p>Active Users</p>
+      </div>
+    </section>
+
+    <section class="landing-section bg-alt">
+      <h2 class="section-title">How It Works</h2>
+      <div class="timeline">
+        <div class="timeline-step">
+          <div class="step-icon">1</div>
+          <h3>Report Item</h3>
+          <p>
+            Upload details and a photo of the lost or found item securely into
+            our database.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-icon">2</div>
+          <h3>AI Matching</h3>
+          <p>
+            Our smart algorithm automatically compares categories and dates to
+            find matches.
+          </p>
+        </div>
+        <div class="timeline-step">
+          <div class="step-icon">3</div>
+          <h3>Secure Return</h3>
+          <p>
+            Chat directly via our live portal and safely return the item to its
+            rightful owner.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="landing-section">
+      <h2 class="section-title">Why Choose Smart L&F?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fa-solid fa-robot"></i>
+          <h3>AI Smart Matching</h3>
+          <p>
+            Our algorithm automatically compares reported lost items against
+            found inventory to instantly identify potential matches.
+          </p>
+        </div>
+        <div class="feature-card">
+          <i class="fa-solid fa-database"></i>
+          <h3>Centralized Database</h3>
+          <p>
+            Ditch the paper logs. Everything is stored securely in the cloud,
+            accessible 24/7 from any device.
+          </p>
+        </div>
+        <div class="feature-card">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Secure Recovery</h3>
+          <p>
+            Verifiable user accounts and direct real-time chat ensure items are
+            safely returned to their rightful owners.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="landing-section bg-alt">
+      <h2 class="section-title">Get In Touch</h2>
+      <div
+        class="contact-form"
+        style="
+          text-align: center;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 3rem 2rem;
+          border-radius: 20px;
+        "
+      >
+        <i
+          class="fa-solid fa-envelope-open-text"
+          style="
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+          "
+        ></i>
+        <h3 style="margin-bottom: 10px; font-size: 1.5rem">
+          Have Questions or Feedback?
+        </h3>
+        <p
+          style="
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+          "
+        >
+          Whether you want to report an issue, suggest a feature, or just say
+          hi, I'm always open to feedback!
+        </p>
+
+        <a
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=ps2511004@gmail.com"
+          target="_blank"
+          style="text-decoration: none"
+        >
+          <button
+            class="btn-primary"
+            style="
+              width: auto;
+              margin: 0 auto;
+              padding: 1rem 2.5rem;
+              border-radius: 50px;
+              font-size: 1.1rem;
+              box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i> Email the Developer
+          </button>
+        </a>
+      </div>
+    </section>
+
+    <section
+      id="login"
+      class="auth-wrapper"
+      style="
+        background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%);
+      "
+    >
+      <div class="auth-card">
+        <i
+          class="fa-solid fa-user-shield"
+          style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem"
+        ></i>
+        <h2 id="formTitle" style="margin-bottom: 1.5rem">Account Login</h2>
+
+        <div id="loginSection">
+          <input type="email" id="loginEmail" placeholder="Email Address" />
+          <input type="password" id="loginPassword" placeholder="Password" />
+          <button class="btn-primary" onclick="loginUser()">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+          </button>
+          <p onclick="toggleForms()" class="toggle-link">
+            Don't have an account? Register here.
+          </p>
+        </div>
+
+        <div id="registerSection" style="display: none">
+          <input type="text" id="regUsername" placeholder="Full Name" />
+          <input type="email" id="regEmail" placeholder="Email Address" />
+          <input type="text" id="regPhone" placeholder="Phone Number" />
+          <input type="password" id="regPassword" placeholder="Password" />
+          <button
+            class="btn-primary"
+            onclick="registerUser()"
+            style="background: var(--success)"
+          >
+            <i class="fa-solid fa-user-plus"></i> Create Account
+          </button>
+          <p
+            onclick="toggleForms()"
+            class="toggle-link"
+            style="color: var(--text-muted)"
+          >
+            Already have an account? Login here.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Smart Lost & Found Management System.</p>
+      <p style="margin-top: 5px; font-weight: 600; color: var(--primary)">
+        Developed by Priyanshu Singh
+      </p>
+
+      <p style="margin-top: 15px">
+        <a
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=ps2511004@gmail.com"
+          target="_blank"
+          style="
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+          "
+          onmouseover="this.style.color = 'var(--primary)'"
+          onmouseout="this.style.color = 'var(--text-muted)'"
+        >
+          <i class="fa-solid fa-envelope" style="margin-right: 5px"></i> Drop an
+          Email
+        </a>
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+      function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.querySelector("#themeToggle i");
+        if (body.getAttribute("data-theme") === "dark") {
+          body.setAttribute("data-theme", "light");
+          localStorage.setItem("theme", "light");
+          themeIcon.classList.replace("fa-sun", "fa-moon");
+        } else {
+          body.setAttribute("data-theme", "dark");
+          localStorage.setItem("theme", "dark");
+          themeIcon.classList.replace("fa-moon", "fa-sun");
+        }
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        document.body.setAttribute("data-theme", savedTheme);
+        const themeIcon = document.querySelector("#themeToggle i");
+        if (savedTheme === "dark") themeIcon.className = "fa-solid fa-sun";
+        else themeIcon.className = "fa-solid fa-moon";
+      });
+    </script>
+  </body>
+</html>

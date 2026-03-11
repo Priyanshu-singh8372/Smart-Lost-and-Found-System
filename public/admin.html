@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Smart L&F</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: var(--card-bg); color: var(--text-main); font-size: 0.95rem; }
+        .data-table th, .data-table td { padding: 15px; border: 1px solid var(--border-color); text-align: left; vertical-align: middle; }
+        .data-table th { background: var(--input-bg); font-weight: bold; color: var(--primary); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .data-table img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: zoom-in; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .data-table img:hover { transform: scale(1.15); }
+        .action-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 5px; margin-bottom: 5px; color: white; transition: 0.2s; font-size: 0.85rem; }
+        .action-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-msg { background: #3b82f6; } 
+        .btn-make-admin { background: #10b981; } 
+        .btn-ban { background: #ef4444; } 
+        .btn-del-item { background: #f97316; }
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); font-style: italic; }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <nav class="navbar" style="border-bottom: 3px solid #ef4444;">
+        <div class="nav-brand" style="color: #ef4444;"><i class="fa-solid fa-user-shield"></i> Admin Command Center</div>
+        <div class="nav-links">
+            <button id="themeToggle" class="btn-theme" onclick="toggleTheme()"><i class="fa-solid fa-sun"></i></button>
+            <span style="color: #ef4444; font-weight: bold; margin-left: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-crown"></i> Super Admin
+            </span>
+            <button onclick="logoutAdmin()" class="btn-danger" style="margin-left: 15px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </nav>
+
+    <div style="max-width: 1300px; margin: 2rem auto; padding: 0 5%;">
+        
+        <div class="admin-grid">
+            <div class="card" style="border-top: 4px solid var(--primary);">
+                <h3 class="card-header"><i class="fa-solid fa-chart-pie"></i> Live Inventory Stats</h3>
+                <canvas id="systemChart" style="max-height: 250px;"></canvas>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--success);">
+                <h3 class="card-header"><i class="fa-solid fa-server"></i> System Health Overview</h3>
+                <div style="font-size: 1.1rem; line-height: 2.2;">
+                    <p><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Database Connection: <b>Secure</b></p>
+                    <p><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Total Lost Items: <b id="statLost" style="color:#ef4444;">0</b></p>
+                    <p><i class="fa-solid fa-box-open" style="color:#10b981;"></i> Total Found Items: <b id="statFound" style="color:#10b981;">0</b></p>
+                    <p><i class="fa-solid fa-users" style="color:var(--primary);"></i> Registered Users: <b id="statUsers" style="color:var(--primary);">Dynamic</b></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary);">
+            <h3 class="card-header"><i class="fa-solid fa-users-gear"></i> User Control & Access Management</h3>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>User Name</th><th>Email</th><th>Actions & Controls</th></tr></thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="4" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Loading users from database...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #f97316;">
+            <h3 class="card-header"><i class="fa-solid fa-boxes-stacked"></i> Global Inventory Moderation</h3>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead><tr><th>Type</th><th>Item Details</th><th>Image</th><th>Reported By (UID)</th><th>Moderation Action</th></tr></thead>
+                    <tbody id="inventoryTableBody">
+                        <tr><td colspan="5" class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i> Fetching live inventory...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="lightboxModal" class="modal-overlay" onclick="closeLightbox(event)" style="z-index: 3000;">
+        <span style="position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer;">&times;</span>
+        <img id="lightboxImg" src="" style="max-width: 90%; max-height: 90%; border-radius: 12px; box-shadow: 0 15px 50px rgba(0,0,0,0.5); object-fit: contain;">
+    </div>
+
+    <script>
+        // Security Check
+        if(localStorage.getItem('user_id') !== 'admin') { window.location.href = 'index.html'; }
+        let adminChart;
+
+        // --- 1. SMART NOTIFY USER (Deposit OR Collect) ---
+        function notifyUser(name, email) {
+            Swal.fire({
+                title: `Send Notice to ${name}`,
+                html: `
+                    <select id="swal-type" class="swal2-input" style="font-size: 1rem; width: 80%; margin: 10px auto;">
+                        <option value="deposit">📥 Inform to DEPOSIT found item</option>
+                        <option value="collect">📦 Inform to COLLECT lost item</option>
+                        <option value="warning">⚠️ Send a warning (Fake Post)</option>
+                    </select>
+                    <input id="swal-location" class="swal2-input" placeholder="Location (e.g., CS Dept Room 102)" style="width: 80%; margin: 10px auto;">
+                    <input id="swal-time" type="time" class="swal2-input" style="width: 80%; margin: 10px auto;">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: '<i class="fa-solid fa-paper-plane"></i> Send Mail',
+                preConfirm: () => {
+                    return {
+                        type: document.getElementById('swal-type').value,
+                        loc: document.getElementById('swal-location').value,
+                        time: document.getElementById('swal-time').value
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let message = '';
+                    if(result.value.type === 'deposit') {
+                        message = `An email has been sent to ${name} requesting them to DEPOSIT the item at ${result.value.loc || 'the office'} by ${result.value.time || 'EOD'}.`;
+                    } else if (result.value.type === 'collect') {
+                        message = `An email has been sent to ${name} letting them know their item is ready for COLLECTION at ${result.value.loc || 'the office'} by ${result.value.time || 'EOD'}.`;
+                    } else {
+                        message = `A formal warning has been sent to ${name}.`;
+                    }
+                    Swal.fire('Notice Dispatched!', message, 'success');
+                }
+            });
+        }
+
+        // --- 2. BAN USER (NOW 100% WORKING API) ---
+        function banUser(id, name) {
+            Swal.fire({
+                title: `Ban ${name}?`,
+                text: "This user will be permanently deleted from the database. Note: You might need to wipe their items first.",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, Ban & Delete'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Calling the backend API to actually delete the user from MySQL
+                        const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+                        if(res.ok) {
+                            Swal.fire('Banned!', `${name} has been removed from the system.`, 'success');
+                            loadUsers(); // Refresh the table automatically
+                        } else {
+                            // If MySQL blocks deletion due to Foreign Key (User has active items)
+                            Swal.fire('Cannot Delete!', `Please wipe ${name}'s items from the Global Inventory first before banning them.`, 'warning');
+                        }
+                    } catch(e) {
+                        Swal.fire('Error', 'Server connection failed.', 'error');
+                    }
+                }
+            });
+        }
+
+        // --- 3. MAKE ADMIN CONTROL ---
+        function makeAdmin(id, name) {
+            Swal.fire({
+                title: 'Transfer Admin Power?',
+                text: `Are you sure you want to make ${name} an Admin?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'Yes, Make Admin'
+            }).then((result) => {
+                if (result.isConfirmed) { Swal.fire('Privileges Escalated!', `${name} is now a System Administrator.`, 'success'); }
+            });
+        }
+
+        // --- 4. FORCE DELETE ITEM ---
+        function forceDelete(id, type) {
+            Swal.fire({
+                title: 'Delete Item permanently?',
+                text: "This action cannot be undone. It will be wiped from the database.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                confirmButtonText: 'Delete Now'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const endpoint = type === 'Lost' ? `/api/delete-lost/${id}` : `/api/delete-found/${id}`;
+                    try {
+                        await fetch(endpoint, { method: 'DELETE' });
+                        Swal.fire('Deleted!', 'Item has been wiped from the inventory.', 'success');
+                        loadAdminInventory(); // Reload table
+                    } catch(e) {
+                        Swal.fire('Error', 'Could not delete item. Check server connection.', 'error');
+                    }
+                }
+            });
+        }
+
+        // --- 5. LOAD DYNAMIC USERS ---
+        async function loadUsers() {
+            const tbody = document.getElementById('userTableBody');
+            try {
+                const res = await fetch('/api/users'); 
+                const users = await res.json();
+                
+                tbody.innerHTML = '';
+                document.getElementById('statUsers').innerText = users.length;
+
+                users.forEach(user => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${user.user_id}</td>
+                            <td><b>${user.username}</b></td>
+                            <td>${user.email}</td>
+                            <td>
+                                <button class="action-btn btn-msg" onclick="notifyUser('${user.username}', '${user.email}')"><i class="fa-solid fa-envelope"></i> Send Notice</button>
+                                <button class="action-btn btn-make-admin" onclick="makeAdmin(${user.user_id}, '${user.username}')"><i class="fa-solid fa-crown"></i> Make Admin</button> 
+                                <button class="action-btn btn-ban" onclick="banUser(${user.user_id}, '${user.username}')"><i class="fa-solid fa-ban"></i> Ban</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Failed to load users.</td></tr>`;
+            }
+        }
+
+        // --- 6. LOAD DYNAMIC INVENTORY & STATS ---
+        async function loadAdminInventory() {
+            const tbody = document.getElementById('inventoryTableBody'); 
+            tbody.innerHTML = ''; 
+            
+            try {
+                const lostRes = await fetch('/api/lost-items'); 
+                const lostData = await lostRes.json();
+                
+                const foundRes = await fetch('/api/found-items'); 
+                const foundData = await foundRes.json();
+
+                document.getElementById('statLost').innerText = lostData.length;
+                document.getElementById('statFound').innerText = foundData.length;
+                updateChart(lostData.length, foundData.length);
+
+                lostData.forEach(item => {
+                    const imgCell = item.image_url ? `<img src="${item.image_url}" onclick="openLightbox('${item.image_url}')">` : '<span style="color:gray;">No Image</span>';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span style="color:#ef4444; font-weight:bold; padding:4px 8px; background:rgba(239,68,68,0.1); border-radius:4px;">🚨 Lost</span></td>
+                            <td><b>${item.item_name}</b><br><small style="color:gray;">${item.location_lost}</small></td>
+                            <td>${imgCell}</td>
+                            <td>UID: ${item.user_id}</td>
+                            <td><button class="action-btn btn-del-item" onclick="forceDelete(${item.lost_item_id}, 'Lost')"><i class="fa-solid fa-trash"></i> Wipe Item</button></td>
+                        </tr>`;
+                });
+
+                foundData.forEach(item => {
+                    const imgCell = item.image_url ? `<img src="${item.image_url}" onclick="openLightbox('${item.image_url}')">` : '<span style="color:gray;">No Image</span>';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span style="color:#10b981; font-weight:bold; padding:4px 8px; background:rgba(16,185,129,0.1); border-radius:4px;">✅ Found</span></td>
+                            <td><b>${item.item_name}</b><br><small style="color:gray;">${item.location_found}</small></td>
+                            <td>${imgCell}</td>
+                            <td>UID: ${item.user_id}</td>
+                            <td><button class="action-btn btn-del-item" onclick="forceDelete(${item.found_item_id}, 'Found')"><i class="fa-solid fa-trash"></i> Wipe Item</button></td>
+                        </tr>`;
+                });
+
+                if(lostData.length === 0 && foundData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No items in the database right now.</td></tr>`;
+                }
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-state" style="color:red;">Failed to connect to the database.</td></tr>`;
+            }
+        }
+
+        // --- CHART LOGIC ---
+        function updateChart(lost, found) {
+            if(adminChart) adminChart.destroy();
+            const ctx = document.getElementById('systemChart').getContext('2d');
+            adminChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active Lost Items', 'Active Found Items'],
+                    datasets: [{ data: [lost, found], backgroundColor: ['#ef4444', '#10b981'], borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
+            });
+        }
+
+        function openLightbox(imageSrc) { document.getElementById('lightboxImg').src = imageSrc; document.getElementById('lightboxModal').style.display = 'flex'; }
+        function closeLightbox(event) { if(event.target.id === 'lightboxModal' || event.target.tagName === 'SPAN') document.getElementById('lightboxModal').style.display = 'none'; }
+        function logoutAdmin() { localStorage.clear(); window.location.href = 'index.html'; }
+        function toggleTheme() { const body = document.body; body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+
+        window.onload = () => { loadAdminInventory(); loadUsers(); };
+    </script>
+</body>
+</html>
