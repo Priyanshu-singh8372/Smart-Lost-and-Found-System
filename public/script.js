@@ -13,9 +13,9 @@ async function registerUser() {
             phone: document.getElementById('regPhone').value, password: document.getElementById('regPassword').value
         })
     });
-    if (res.ok) { 
-        Swal.fire('Welcome Aboard!', 'Registration Successful! You can now log in.', 'success'); 
-        toggleForms(); 
+    if (res.ok) {
+        Swal.fire('Welcome Aboard!', 'Registration Successful! You can now log in.', 'success');
+        toggleForms();
     } else {
         Swal.fire('Oops...', 'Registration Failed! Try again.', 'error');
     }
@@ -25,8 +25,8 @@ async function loginUser() {
     const emailInput = document.getElementById('loginEmail').value;
     const passwordInput = document.getElementById('loginPassword').value;
 
-    if (emailInput === 'admin@smartlf.com' && passwordInput === 'admin123') {
-        localStorage.setItem('user_id', 'admin'); 
+    if (emailInput === 'rajput.25p@gmail.com' && passwordInput === 'P2#singh') {
+        localStorage.setItem('user_id', 'admin');
         localStorage.setItem('username', 'Admin Boss');
         Swal.fire({ title: 'System Access Granted', text: 'Welcome back, Administrator.', icon: 'success', timer: 1500, showConfirmButton: false }).then(() => {
             window.location.href = "admin.html";
@@ -40,7 +40,7 @@ async function loginUser() {
     });
     const data = await res.json();
     if (res.ok) {
-        localStorage.setItem('user_id', data.user_id); 
+        localStorage.setItem('user_id', data.user_id);
         localStorage.setItem('username', data.username);
         Swal.fire({ title: `Welcome, ${data.username}!`, text: 'Logging you securely into your dashboard...', icon: 'success', timer: 1500, showConfirmButton: false }).then(() => {
             window.location.href = "dashboard.html";
@@ -50,9 +50,9 @@ async function loginUser() {
     }
 }
 
-function logout() { 
+function logout() {
     Swal.fire({ title: 'Logging Out', text: 'See you soon!', icon: 'info', timer: 1200, showConfirmButton: false }).then(() => {
-        localStorage.clear(); window.location.href = 'index.html'; 
+        localStorage.clear(); window.location.href = 'index.html';
     });
 }
 
@@ -60,11 +60,11 @@ function logout() {
 async function submitItem() {
     const formData = new FormData();
     const type = document.getElementById('reportType').value;
-    
+
     // Time aur Location ko merge karne ka logic 🕒📍
     const locVal = document.getElementById('itemLocation').value;
     const timeVal = document.getElementById('itemTime').value;
-    
+
     let finalLocation = locVal;
     if (timeVal) {
         finalLocation = `${locVal} (at ${timeVal})`;
@@ -76,7 +76,7 @@ async function submitItem() {
     formData.append('description', document.getElementById('description').value);
     formData.append('contact_info', document.getElementById('contactInfo').value);
     formData.append(type === 'lost' ? 'date_lost' : 'date_found', document.getElementById('itemDate').value);
-    
+
     // Yahan humara merge kiya hua finalLocation jayega
     formData.append(type === 'lost' ? 'location_lost' : 'location_found', finalLocation);
 
@@ -85,14 +85,14 @@ async function submitItem() {
     }
 
     document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-    
+
     const res = await fetch(type === 'lost' ? '/api/report-lost' : '/api/report-found', { method: 'POST', body: formData });
-    
-    if (res.ok) { 
+
+    if (res.ok) {
         Swal.fire('Success!', 'Your report has been successfully added to the global inventory.', 'success').then(() => { location.reload(); });
-    } else { 
+    } else {
         Swal.fire('Error', 'Could not submit report. Check fields.', 'error');
-        document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Report'; 
+        document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Report';
     }
 }
 
@@ -101,7 +101,7 @@ async function loadFeeds() {
 
     const lostRes = await fetch('/api/lost-items');
     const lostData = await lostRes.json();
-    window.allLostItems = lostData; 
+    window.allLostItems = lostData;
 
     document.getElementById('lostItemsFeed').innerHTML = lostData.map(item => `
         <div class="item-card lost-item" data-category="${item.category_name}">
@@ -145,7 +145,7 @@ async function markRecovered(id) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             const res = await fetch(`/api/delete-lost/${id}`, { method: 'DELETE' });
-            if(res.ok) { Swal.fire('Great News!', 'Item removed from active listings.', 'success'); loadFeeds(); }
+            if (res.ok) { Swal.fire('Great News!', 'Item removed from active listings.', 'success'); loadFeeds(); }
         }
     });
 }
@@ -153,7 +153,7 @@ async function markRecovered(id) {
 // --- PRINT POSTER LOGIC ---
 function printPoster(id) {
     const item = window.allLostItems.find(i => i.lost_item_id === id);
-    if(!item) return;
+    if (!item) return;
     const printWindow = window.open('', '_blank');
     const formattedDate = new Date(item.date_lost).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -183,7 +183,7 @@ function printPoster(id) {
 }
 
 function openLightbox(imageSrc) { document.getElementById('lightboxImg').src = imageSrc; document.getElementById('lightboxModal').style.display = 'flex'; }
-function closeLightbox(event) { if(event.target.id === 'lightboxModal' || event.target.tagName === 'SPAN') document.getElementById('lightboxModal').style.display = 'none'; }
+function closeLightbox(event) { if (event.target.id === 'lightboxModal' || event.target.tagName === 'SPAN') document.getElementById('lightboxModal').style.display = 'none'; }
 
 function filterItems() {
     const searchText = document.getElementById('searchInput').value.toLowerCase(), category = document.getElementById('filterCategory').value;
@@ -213,7 +213,7 @@ async function openChat(itemId, ownerId) {
 
 function closeChat() { document.getElementById('chatModal').style.display = 'none'; }
 function sendMessage() {
-    const text = document.getElementById('chatInput').value; if(!text) return;
+    const text = document.getElementById('chatInput').value; if (!text) return;
     socket.emit('send_message', { sender_id: localStorage.getItem('user_id'), receiver_id: currentReceiver, item_id: currentItem, message_text: text });
     document.getElementById('chatMessages').innerHTML += `<p class="msg sent"><b>You:</b> ${text}</p>`;
     document.getElementById('chatInput').value = ''; document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
@@ -221,7 +221,7 @@ function sendMessage() {
 
 window.onload = () => {
     if (window.location.pathname.includes('dashboard.html')) {
-        if(!localStorage.getItem('user_id')) window.location.href = 'index.html';
+        if (!localStorage.getItem('user_id')) window.location.href = 'index.html';
         const username = localStorage.getItem('username');
         document.getElementById('userNameDisplay').innerText = username;
         document.getElementById('userAvatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random&color=fff&font-size=0.4&bold=true`;
@@ -231,12 +231,16 @@ window.onload = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) { document.querySelectorAll('.counter').forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target'), count = +counter.innerText.replace('+', ''), inc = target / 100;
-                if (count < target) { counter.innerText = Math.ceil(count + inc); setTimeout(updateCount, 20); } else { counter.innerText = target + "+"; }
-            }; updateCount();
-        }); observer.unobserve(entry.target); } });
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                document.querySelectorAll('.counter').forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target'), count = +counter.innerText.replace('+', ''), inc = target / 100;
+                        if (count < target) { counter.innerText = Math.ceil(count + inc); setTimeout(updateCount, 20); } else { counter.innerText = target + "+"; }
+                    }; updateCount();
+                }); observer.unobserve(entry.target);
+            }
+        });
     }, { threshold: 0.5 });
     if (document.querySelector('.stats-section')) observer.observe(document.querySelector('.stats-section'));
 });
