@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
@@ -26,15 +27,19 @@ const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ==========================================
-// DATABASE CONNECTION
+// DATABASE CONNECTION (CLOUD SECURE)
 // ==========================================
 const db = mysql.createConnection({
-    host: 'localhost', user: 'root', password: '', database: 'smart_lost_found', port: 3306
+    host: process.env.DB_HOST, 
+    user: process.env.DB_USER, 
+    password: process.env.DB_PASS, 
+    database: process.env.DB_NAME, 
+    port: process.env.DB_PORT
 });
 
 db.connect(err => {
-    if (err) console.error('❌ DB Error:', err.message);
-    else console.log('✅ Connected to MySQL Database!');
+    if (err) console.error('❌ Cloud DB Error:', err.message);
+    else console.log('✅ Connected to LIVE Cloud MySQL Database!');
 });
 
 // ==========================================
