@@ -56,7 +56,7 @@ function logout() {
     });
 }
 
-// --- DASHBOARD: SUBMIT ITEM (WITH TIME HACK) ---
+// --- DASHBOARD: SUBMIT ITEM (AUTO-REFRESH FIXED) ---
 async function submitItem() {
     const formData = new FormData();
     const type = document.getElementById('reportType').value;
@@ -65,6 +65,12 @@ async function submitItem() {
     const locVal = document.getElementById('itemLocation').value;
     const timeVal = document.getElementById('itemTime').value;
 
+    const itemName = document.getElementById('itemName').value;
+    if (!itemName || !locVal) {
+        Swal.fire('Wait!', 'Item Name and Location are required.', 'warning');
+        return;
+    }
+
     let finalLocation = locVal;
     if (timeVal) {
         finalLocation = `${locVal} (at ${timeVal})`;
@@ -72,27 +78,48 @@ async function submitItem() {
 
     formData.append('user_id', localStorage.getItem('user_id'));
     formData.append('category_id', document.getElementById('itemCategory').value);
-    formData.append('item_name', document.getElementById('itemName').value);
+    formData.append('item_name', itemName);
     formData.append('description', document.getElementById('description').value);
     formData.append('contact_info', document.getElementById('contactInfo').value);
     formData.append(type === 'lost' ? 'date_lost' : 'date_found', document.getElementById('itemDate').value);
-
-    // Yahan humara merge kiya hua finalLocation jayega
     formData.append(type === 'lost' ? 'location_lost' : 'location_found', finalLocation);
 
     if (document.getElementById('itemImage').files[0]) {
         formData.append('image', document.getElementById('itemImage').files[0]);
     }
 
-    document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
 
-    const res = await fetch(type === 'lost' ? '/api/report-lost' : '/api/report-found', { method: 'POST', body: formData });
+    try {
+        const res = await fetch(type === 'lost' ? '/api/report-lost' : '/api/report-found', {
+            method: 'POST',
+            body: formData
+        });
 
-    if (res.ok) {
-        Swal.fire('Success!', 'Your report has been successfully added to the global inventory.', 'success').then(() => { location.reload(); });
-    } else {
-        Swal.fire('Error', 'Could not submit report. Check fields.', 'error');
-        document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Report';
+        if (res.ok) {
+            // Success popup
+            Swal.fire('Success!', 'Your report has been successfully added to the global inventory.', 'success');
+
+            // Form clear karna taaki naya item daalne mein aasaani ho
+            document.getElementById('itemName').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('itemLocation').value = '';
+            document.getElementById('itemTime').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('contactInfo').value = '';
+
+            // Magic Line: Page bina reload kiye naya data side wale feed mein lana
+            await loadFeeds();
+        } else {
+            throw new Error('Server Error');
+        }
+    } catch (error) {
+        Swal.fire('Error', 'Could not submit report. Check fields or server connection.', 'error');
+    } finally {
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Report';
+        submitBtn.disabled = false;
     }
 }
 
